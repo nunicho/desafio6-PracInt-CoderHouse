@@ -19,7 +19,7 @@ const productosEsquema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  thumbnail:{
+  thumbnail: {
     type: String,
     required: true,
   },
@@ -31,7 +31,7 @@ const productosEsquema = new mongoose.Schema({
   stock: {
     type: Number,
     required: true,
-  }
+  },
 });
 
 const productosModelo = mongoose.model(productosColeccion, productosEsquema);

@@ -3,30 +3,20 @@ const router = Router();
 const path = require("path");
 const fs = require("fs");
 
+// CONECCION A MONGODB
 
-let ruta = path.join(__dirname, "..", "archivos", "productos.json");
-
-function getProducts() {
-  if (fs.existsSync(ruta)) {
-    return JSON.parse(fs.readFileSync(ruta, "utf-8"));
-  } else {
-    return [];
-  }
-}
-
-function saveProducts(products) {
-  fs.writeFileSync(ruta, JSON.stringify(products, null, 5));
-}
+const productosModelo = require("../models/productos.modelo.js");
 
 //------------------------------------------------------------------------ PETICION GET
 
-router.get("/", (req, res) => {
-  let productos = getProducts();
+router.get("/", async(req, res) => {
+ 
+  let productosDB = await productosModelo.find();
 
-  const limit = parseInt(req.query.limit) || productos.length;
-  const limitedData = productos.slice(0, limit);
+  //const limit = parseInt(req.query.limit) || productosDB.length;
+  //const limitedData = productosDB.slice(0, limit);
   res.setHeader("Content-Type", "application/json");
-  res.status(200).json({ data: limitedData });
+  res.status(200).json({ productosDB });
 });
 
 //------------------------------------------------------------------------ PETICION GET con /:ID
@@ -57,10 +47,31 @@ router.get("/:id", (req, res) => {
 //------------------------------------------------------------------------ PETICION POST
 
 router.post("/", async (req, res) => {
-  const productos = getProducts();
 
-  const { title, description, price, thumbnail, code, stock } = req.body;
+  let producto = req.body;
+if (
+  !producto.title ||
+  !producto.description ||
+  !producto.price ||
+  !producto.thumbnail ||
+  !producto.code ||
+  !producto.stock)
+  return res.status(400).json({ error: "Faltan datos" });
+  
+  let existe = await productosModelo.findOne({code:producto.code})
+  if(existe) return res.status(400).json({ error: `El código ${producto.code} ya está siendo usado por otro producto.` });
 
+  try {
+    let productoInsertado = await productosModelo.create(producto)
+    res.status(201).json({productoInsertado})
+
+  } catch (error) {
+    res.status(500).json({ error: "Error inesperado", detalle: error.message });
+
+  }
+
+
+/*
   if (productos.some((producto) => producto.code === code)) {
     return res
       .status(400)
@@ -95,6 +106,7 @@ router.post("/", async (req, res) => {
   } else {
     res.status(400).json({ error: "Debe completar todos los datos" });
   }
+  */
 });
 
 //------------------------------------------------------------------------ PETICION PUT

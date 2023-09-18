@@ -1,13 +1,20 @@
 const express = require("express");
-const productsRouter = require("./dao/fileSystem/routes/products.router.js");
-const cartsRouter = require("./dao/fileSystem/routes/carts.router.js");
-const vistasRouter = require("./dao/fileSystem/routes/vistas.router.js");
+
+
+//const productsRouter = require("./dao/fileSystem/routes/products.router.js");
+//const cartsRouter = require("./dao/fileSystem/routes/carts.router.js");
+//const vistasRouter = require("./dao/fileSystem/routes/vistas.router.js");
 const path = require("path");
 const fs = require("fs");
 const http = require("http");
 const socketIO = require("socket.io");
 
+
+//MONGODB
 const moongose = require("mongoose");
+const productsRouter = require("./dao/DB/routes/DBproducts.router");
+const cartsRouter = require("./dao/DB/routes/DBcarts.router.js");
+const vistasRouter = require("./dao/DB/routes/DBvistas.router.js");
 
 // HANDLEBARS - importación
 const handlebars = require("express-handlebars");
@@ -91,7 +98,7 @@ serverSocket.on("connection", (socket) => {
 
 moongose
   .connect(
-    "mongodb+srv://mauricioalonso:12345qwert@cluster0.frgywur.mongodb.net/?retryWrites=true&w=majoritydbName=ecommerce"
+    "mongodb+srv://mauricioalonso:12345qwert@cluster0.frgywur.mongodb.net/?retryWrites=true&w=majority&dbName=ecommerce"
   )
   .then(console.log("DB Conectada"))
   .catch((error) => console.log(error));
