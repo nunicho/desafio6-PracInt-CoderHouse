@@ -3,6 +3,9 @@ const router = Router();
 const path = require("path");
 const fs = require("fs");
 
+// RELACIONADO A MONGODB
+const productosModelo = require("../../mongoDb/models/productos.modelo.js");
+
 let ruta = path.join(__dirname, "..", "archivos", "productos.json");
 
 function getProducts() {
@@ -14,21 +17,21 @@ function getProducts() {
 }
 
 function saveProducts(products) {
-   fs.writeFileSync(ruta, JSON.stringify(products, null, 5));
- }
-
+  fs.writeFileSync(ruta, JSON.stringify(products, null, 5));
+}
 
 //------------------------------------------------------------------------ PETICION GET
 
 router.get("/", (req, res) => {
   let productos = getProducts();
 
+  let productosDB = productosModelo.find({});
+
   const limit = parseInt(req.query.limit) || productos.length;
   const limitedData = productos.slice(0, limit);
   res.setHeader("Content-Type", "application/json");
   res.status(200).json({ data: limitedData });
 });
-
 
 //------------------------------------------------------------------------ PETICION GET con /:ID
 
@@ -57,7 +60,6 @@ router.get("/:id", (req, res) => {
 
 //------------------------------------------------------------------------ PETICION POST
 
-
 router.post("/", async (req, res) => {
   const productos = getProducts();
 
@@ -72,7 +74,7 @@ router.post("/", async (req, res) => {
   if (title && description && price && thumbnail && code && stock) {
     const nuevoProducto = {
       id: productos.length > 0 ? productos[productos.length - 1].id + 1 : 1,
-      status: true, //por defecto se debe seleccionar TRUE. 
+      status: true, //por defecto se debe seleccionar TRUE.
       title,
       description,
       price,
@@ -81,7 +83,7 @@ router.post("/", async (req, res) => {
       stock,
     };
 
-    productos.push(nuevoProducto);   
+    productos.push(nuevoProducto);
 
     try {
       await fs.promises.writeFile(
@@ -99,9 +101,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-
 //------------------------------------------------------------------------ PETICION PUT
-
 
 router.put("/:id", (req, res) => {
   let items = getProducts();
@@ -170,9 +170,7 @@ router.put("/:id", (req, res) => {
   }
 });
 
-
 //------------------------------------------------------------------------ PETICION DELETE
-
 
 router.delete("/:id", (req, res) => {
   let productos = getProducts();
@@ -202,6 +200,3 @@ router.get("*", (req, res) => {
 });
 
 module.exports = router;
-
-
-

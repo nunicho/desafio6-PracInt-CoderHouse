@@ -1,7 +1,6 @@
 const Router = require("express").Router;
-const router = Router();   
-const arrayProducts = require("../archivos/productos.json"); 
-
+const router = Router();
+const arrayProducts = require("../../../archivos/productos.json");
 
 router.get("/", (req, res) => {
   res.setHeader("Content-Type", "text/html");
@@ -31,10 +30,9 @@ router.get("/products", (req, res) => {
     product: product,
     index: index,
     titlePage: "Página de productos",
-    estilo: "productsStyles.css"
+    estilo: "productsStyles.css",
   });
 });
-
 
 router.get("/realtimeproducts", (req, res) => {
   let index = parseInt(req.query.index) || 0;
