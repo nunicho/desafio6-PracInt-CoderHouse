@@ -1,6 +1,6 @@
 const Router = require("express").Router;
 const router = Router();
-const path = require("path");
+//const path = require("path");
 const fs = require("fs");
 
 const mongoose = require("mongoose");
@@ -14,36 +14,31 @@ const productosModelo = require("../models/productos.modelo.js");
 router.get("/", async (req, res) => {
   let productosDB = await productosModelo.find();
 
-  //const limit = parseInt(req.query.limit) || productosDB.length;
-  //const limitedData = productosDB.slice(0, limit);
+  const limit = parseInt(req.query.limit) || productosDB.length;
+  const limitedData = productosDB.slice(0, limit);
   res.setHeader("Content-Type", "application/json");
-  res.status(200).json({ productosDB });
-});
+  res.status(200).json({ limitedData});});
+
 
 //------------------------------------------------------------------------ PETICION GET con /:ID
 
-router.get("/:id", (req, res) => {
-  let productos = getProducts();
 
-  let pid = req.params.id;
-  pid = parseInt(pid);
-  if (isNaN(pid)) {
-    res.json({
-      status: "error",
-      mensaje: "Require un argumento id de tipo numerico",
-    });
-    return;
-  }
-  let resultado = productos.filter((producto) => producto.id === pid);
+router.get("/:id", async (req, res) => {
+  let id = req.params.id;
 
-  if (resultado.length > 0) {
-    res.status(200).json({ data: resultado });
-  } else {
-    res
-      .status(404)
-      .json({ status: "error", mensaje: `El id ${pid} no existe` });
-  }
+  if (!mongoose.Types.ObjectId.isValid(id))
+    return res.status(400).json({ error: "id inválido" });
+
+  let productoDB = await productosModelo.findById(id);
+
+  if (!productoDB)
+    return res.status(404).json({ error: `Producto con id ${id} inexistente` });
+
+  res.status(200).json({ productoDB });
 });
+
+module.exports = router;
+
 
 //------------------------------------------------------------------------ PETICION POST
 
