@@ -18,6 +18,7 @@ const vistasRouter = require("./dao/DB/routes/DBvistas.router.js");
 
 // HANDLEBARS - importación
 const handlebars = require("express-handlebars");
+const { default: mongoose } = require("mongoose");
 
 const PORT = 8080;
 
@@ -96,9 +97,11 @@ serverSocket.on("connection", (socket) => {
   socket.emit("productosActualizados", getProducts());
 });
 
-moongose
-  .connect(
+
+moongose.connect(
     "mongodb+srv://mauricioalonso:12345qwert@cluster0.frgywur.mongodb.net/?retryWrites=true&w=majority&dbName=ecommerce"
   )
   .then(console.log("DB Conectada"))
   .catch((error) => console.log(error));
+
+  
