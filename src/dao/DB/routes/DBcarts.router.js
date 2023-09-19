@@ -1,134 +1,110 @@
-const Router = require("express").Router;
-const router = Router();
+const express = require("express");
+const router = express.Router();
+const carritosModelo = require("../models/carritos.modelo.js"); // Importa el modelo de Mongoose
+const productosModelo = require("../models/productos.modelo.js");
 const path = require("path");
-const fs = require("fs");
 
-let ruta = path.join(__dirname, "..", "archivos", "carritos.json");
-let rutaProductos = path.join(__dirname, "..", "archivos", "productos.json");
+const mongoose = require("mongoose");
 
+//------------------------------------------------------------------------ PETICION GET
 
-function getCarts() {
-  if (fs.existsSync(ruta)) {
-    return JSON.parse(fs.readFileSync(ruta, "utf-8"));
-  } else {
-    return [];
-  }
-}
+router.get("/", async (req, res) => {
+  try {
+    const carritos = await carritosModelo.find(); // Obtén todos los carritos
 
-
-function getProducts() {
-  if (fs.existsSync(rutaProductos)) {
-    return JSON.parse(fs.readFileSync(rutaProductos, "utf-8"));
-  } else {
-    return [];
-  }
-}
-
-
-
-function saveProducts(carts) {
-  fs.writeFileSync(ruta, JSON.stringify(carts, null, 5));
-}
-
-
-//------------------------------------------------------------------------ PETICION GET con /:ID
-
-router.get("/:cid", (req, res) => {
-  let carritos = getCarts();
-
-  let cid = req.params.cid; 
-  cid = parseInt(cid);
-
-  if (isNaN(cid)) {
-    res.json({
-      status: "error",
-      mensaje: "Requiere un argumento 'cid' de tipo numérico",
-    });
-    return;
-  }
-
-  let resultado = carritos.filter((carrito) => carrito.id === cid);
-
-  if (resultado.length > 0) {
-    res.status(200).json({ data: resultado });
-  } else {
-    res
-      .status(404)
-      .json({ status: "error", mensaje: `El id ${cid} no existe` }); 
+    res.status(200).json({ data: carritos });
+  } catch (error) {
+    res.status(500).json({ error: "Error interno del servidor" });
   }
 });
 
+//------------------------------------------------------------------------ PETICION GET con /:ID
+
+router.get("/:cid", async (req, res) => {
+  try {
+    const cid = parseInt(req.params.cid);
+
+    if (isNaN(cid)) {
+      return res.status(400).json({
+        status: "error",
+        mensaje: 'Requiere un argumento "cid" de tipo numérico',
+      });
+    }
+
+    const carrito = await carritosModelo.findOne({ id: cid });
+
+    if (!carrito) {
+      return res.status(404).json({
+        status: "error",
+        mensaje: `El id ${cid} no existe`,
+      });
+    }
+
+    res.status(200).json({ data: carrito });
+  } catch (error) {
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
 
 //------------------------------------------------------------------------ PETICION POST
 
+router.post("/", async (req, res) => {
+  try {
+    const carritoToAdd = req.body;
 
-router.post("/products/", async (req, res) => {
-  const carritos = getCarts();
-  const productos = getProducts();
+    // Verificar si falta algún campo 'id' o 'quantity' en algún producto
+    const hasMissingFields = carritoToAdd.products.some(
+      (product) => !product.id || !product.quantity
+    );
 
-  const productsToAdd = req.body;
+    if (hasMissingFields || carritoToAdd.products.length === 0) {
+      return res.status(400).json({
+        error: "Los productos deben tener campos 'id' y 'quantity' completos",
+      });
+    }
+    // Verificar que el ID sea válido según los parámetros de MongoDB
 
-  if (productsToAdd.length > 0) {
-    let allProductsExist = true;
+    // Verificar si los productos existen en la base de datos
+    const productIds = carritoToAdd.products.map((product) => product.id);
 
-    for (const product of productsToAdd) {
-      const { id, quantity } = product;
-
-      if (
-        !id ||
-        !quantity ||
-        !productos.some((producto) => producto.id === id)
-      ) {
-        allProductsExist = false;
-        break;
+    for (const productId of productIds) {
+      if (!mongoose.Types.ObjectId.isValid(productId)) {
+        return res.status(400).json({ error: "id inválido" });
       }
     }
 
-    if (allProductsExist) {
-      const groupedProducts = {};
+    const existe = await productosModelo.findOne({ _id: { $in: productIds } });
 
-      for (const product of productsToAdd) {
-        const { id, quantity } = product;
-
-        if (!groupedProducts[id]) {
-          groupedProducts[id] = quantity;
-        } else {
-          groupedProducts[id] += quantity;
-        }
-      }
-
-      const updatedCarrito = {
-        id: carritos.length > 0 ? carritos[carritos.length - 1].id + 1 : 1,
-        products: Object.keys(groupedProducts).map((id) => ({
-          id: parseInt(id),
-          quantity: groupedProducts[id],
-        })),
-      };
-
-      carritos.push(updatedCarrito);
-
-      try {
-        await fs.promises.writeFile(
-          ruta,
-          JSON.stringify(carritos, null, 2),
-          "utf8"
-        );
-        res.status(201).json(updatedCarrito); // Agregar respuesta en caso de éxito
-      } catch (error) {
-        res.status(500).json({ error: "Error al guardar el carrito" });
-      }
-    } else {
-      res
+    if (!existe) {
+      return res
         .status(400)
-        .json({ error: "Algunos productos no existen o datos incompletos" });
+        .json({ error: `Algunos artículos no existen en la base de datos` });
     }
-  } else {
-    res.status(400).json({ error: "Debe enviar al menos un producto" });
+    // Sumar la cantidad de productos con el mismo id
+    const groupedProducts = {};
+    carritoToAdd.products.forEach((product) => {
+      const { id, quantity } = product;
+      if (!groupedProducts[id]) {
+        groupedProducts[id] = quantity;
+      } else {
+        groupedProducts[id] += quantity;
+      }
+    });
+
+    // Crear un nuevo carrito con las cantidades agrupadas
+    const carrito = new carritosModelo({
+      products: Object.keys(groupedProducts).map((id) => ({
+        id: id,
+        quantity: groupedProducts[id],
+      })),
+    });
+
+    let carritoInsertado = await carrito.save();
+    res.status(201).json({ carritoInsertado });
+  } catch (error) {
+    res.status(500).json({ error: "Error inesperado", detalle: error.message });
   }
 });
 
 module.exports = router;
-
-
-
 

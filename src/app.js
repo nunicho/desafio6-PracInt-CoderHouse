@@ -1,6 +1,4 @@
 const express = require("express");
-
-
 //const productsRouter = require("./dao/fileSystem/routes/products.router.js");
 //const cartsRouter = require("./dao/fileSystem/routes/carts.router.js");
 //const vistasRouter = require("./dao/fileSystem/routes/vistas.router.js");
@@ -18,7 +16,7 @@ const vistasRouter = require("./dao/DB/routes/DBvistas.router.js");
 
 // HANDLEBARS - importación
 const handlebars = require("express-handlebars");
-const { default: mongoose } = require("mongoose");
+//const { default: mongoose } = require("mongoose");
 
 const PORT = 8080;
 
