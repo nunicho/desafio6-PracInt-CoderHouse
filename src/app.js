@@ -18,6 +18,7 @@ const vistasRouter = require("./dao/DB/routes/DBvistas.router.js");
 
 // HANDLEBARS - importación
 const handlebars = require("express-handlebars");
+const { isObject } = require("util");
 //const { default: mongoose } = require("mongoose");
 
 const PORT = 8080;
@@ -105,3 +106,43 @@ moongose.connect(
   .catch((error) => console.log(error));
 
   
+let mensajes = [{
+  emisor:'Server',
+  mensaje:'Bienvenido al chat de ferretería el Tornillo... !!!'
+}]
+
+let usuarios = []
+
+const serverSocketChat = socketIO(serverExpress);
+
+serverSocketChat.on('connection', socket=>{
+  console.log(`Se ha conectado un cliente con id ${socket.id}`)
+
+socket.on('id', nombre=>{
+  console.log(nombre)
+
+  usuarios.push({
+    id: socket.id,
+    nombre
+  })
+  socket.emit('bienvenida', mensajes)  
+  socket.broadcast.emit('nuevoUsuario', nombre)
+
+})
+
+socket.on('nuevoMensaje', mensaje=>{
+  mensajes.push(mensaje)
+  serverSocketChat.emit("llegoMensaje", mensaje);
+
+})
+// PARA HACER UN USUARIO QUE SE DESCONECTÓ
+    socket.on("disconnect", () => {
+      console.log(`se desconecto el cliente con id ${socket.id}`);
+      let indice = usuarios.findIndex((usuario) => usuario.id === socket.id);
+      let usuario = usuarios[indice];
+      serverSocketChat.emit("usuarioDesconectado", usuario);
+      console.log(usuario);
+      usuarios.splice(indice, 1);
+    });
+
+})

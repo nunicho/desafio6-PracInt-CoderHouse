@@ -80,7 +80,13 @@ router.get("/DBproducts", async (req, res) => {
   }
 });
 
-
+router.get("/chat", (req, res) => {  
+    res.setHeader("Content-type", "text/html");
+    res.status(200).render("chat", {
+      estilo: "chat.css",
+    });
+    
+});
 
 module.exports = router;
 
