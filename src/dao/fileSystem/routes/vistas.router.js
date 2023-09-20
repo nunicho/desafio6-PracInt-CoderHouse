@@ -57,5 +57,4 @@ router.get("/realtimeproducts", (req, res) => {
     estilo: "realTimeProducts.css",
   });
 });
-
 module.exports = router;

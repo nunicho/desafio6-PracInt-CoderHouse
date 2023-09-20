@@ -1,0 +1,24 @@
+<main>
+<span><a  href="/">Regresar</a></span> <span><button id="printButton">Imprimir Lista</button></span>
+<br/>
+
+<h1>Lista de productos en Base de Datos</h1>
+{{#if hasProducts}}
+ <div class="grid">
+        {{#each productos }}
+        <article class="card product-item">
+             <header class="card__header">
+                <h2 class="product__title">{{ this.title}}</h2>
+            </header>
+            <div class="card__image">
+                <img src={{this.thumbnail}}
+                    alt="Product">
+            </div>
+        </article>
+        {{/each }}
+    {{else}}
+    <h1> ¡No se encontraron productos! </h1>
+    {{/if}}
+ </div>
+</main>
+ <script type="module" src="assets/scripts/print.js"></script> 

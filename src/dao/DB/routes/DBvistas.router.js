@@ -1,6 +1,8 @@
 const Router = require("express").Router;
 const router = Router();
 const arrayProducts = require("../../../archivos/productos.json");
+const productosModelo = require("../models/productos.modelo.js");
+
 
 router.get("/", (req, res) => {
   res.setHeader("Content-Type", "text/html");
@@ -58,4 +60,28 @@ router.get("/realtimeproducts", (req, res) => {
   });
 });
 
+
+
+
+router.get("/DBproducts", async (req, res) => {
+  try {
+    const productos = await productosModelo.find().lean();
+    
+    res.header("Content-type", "text/html");
+    res.status(200).render("DBproducts", {
+      productos: productos,
+      hasProducts: productos.length > 0,
+      activeProduct: true,
+      pageTitle: "Productos en DATABASE",
+      estilo: "productsStyles.css",
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
+
+
+
 module.exports = router;
+
+

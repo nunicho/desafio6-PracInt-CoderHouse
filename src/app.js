@@ -12,6 +12,8 @@ const socketIO = require("socket.io");
 const moongose = require("mongoose");
 const productsRouter = require("./dao/DB/routes/DBproducts.router");
 const cartsRouter = require("./dao/DB/routes/DBcarts.router.js");
+
+//HANDLEBARS
 const vistasRouter = require("./dao/DB/routes/DBvistas.router.js");
 
 // HANDLEBARS - importación
