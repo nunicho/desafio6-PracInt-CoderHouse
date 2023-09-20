@@ -6,6 +6,8 @@ const path = require("path");
 const fs = require("fs");
 const http = require("http");
 const socketIO = require("socket.io");
+const MessageModel = require("./dao/DB/models/messages.modelo.js")
+
 
 
 //MONGODB
@@ -131,9 +133,20 @@ socket.on('id', nombre=>{
 })
 
 socket.on('nuevoMensaje', mensaje=>{
-  mensajes.push(mensaje)
-  serverSocketChat.emit("llegoMensaje", mensaje);
 
+
+  // Guarda el mensaje en MongoDB
+  const newMessage = new MessageModel({
+    sender: mensaje.emisor,
+    message: mensaje.mensaje,
+  });
+
+  newMessage.save().then(() => {
+    console.log("Mensaje guardado en MongoDB");
+  });
+
+  mensajes.push(mensaje);
+  serverSocketChat.emit("llegoMensaje", mensaje);
 })
 // PARA HACER UN USUARIO QUE SE DESCONECTÓ
     socket.on("disconnect", () => {
