@@ -1,7 +1,11 @@
 const mongoose = require("mongoose");
 
 const messageSchema = new mongoose.Schema({
-  user: String,
+  user: {
+    type: String,
+    required: true,   
+    match: /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/,
+  },
   message: String,
   timestamp: {
     type: Date,

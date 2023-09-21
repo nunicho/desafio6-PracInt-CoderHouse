@@ -21,11 +21,15 @@ inputMensajes.addEventListener("keyup", (evt) => {
 });
 
 Swal.fire({
-  title: "Identifíquese",
-  input: "text",
-  text: "Ingrese su nickname",
+  title: "Ingrese su correo electrónico",
+  input: "email",
+  inputAttributes: {
+    autocapitalize: "off",
+  },
   inputValidator: (value) => {
-    return !value && "Debe ingresar su nombre...!!!";
+    if (!/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/.test(value)) {
+      return "Debe ingresar un correo electrónico válido...!!!";
+    }
   },
   allowOutsideClick: false,
 }).then((resultado) => {
@@ -53,7 +57,7 @@ Swal.fire({
       position: "top-right",
     });
   });
-  socket.on("llegoMensaje", mensaje => {
+  socket.on("llegoMensaje", (mensaje) => {
     let txt = "";
     txt += `<p class='mensaje'><strong>${mensaje.emisor}</strong>:<i>${mensaje.mensaje}</i></p><br>`;
 
