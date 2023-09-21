@@ -137,7 +137,7 @@ socket.on('nuevoMensaje', mensaje=>{
 
   // Guarda el mensaje en MongoDB
   const newMessage = new MessageModel({
-    sender: mensaje.emisor,
+    user: mensaje.emisor,
     message: mensaje.mensaje,
   });
 
