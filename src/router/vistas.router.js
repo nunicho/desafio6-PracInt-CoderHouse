@@ -1,7 +1,7 @@
 const Router = require("express").Router;
 const router = Router();
-const arrayProducts = require("../../../archivos/productos.json");
-const productosModelo = require("../models/productos.modelo.js");
+const arrayProducts = require("../archivos/productos.json");
+const productosModelo = require("../dao/DB/models/productos.modelo.js");
 
 
 router.get("/", (req, res) => {
