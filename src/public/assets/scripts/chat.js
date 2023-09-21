@@ -1,5 +1,3 @@
-console.log("ok");
-
 const socket = io();
 
 let nombre = "";

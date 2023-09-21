@@ -6,6 +6,8 @@ const MessageModel = require("./dao/DB/models/messages.modelo.js");
 const moongose = require("mongoose");
 const path = require("path"); // Debes importar 'path'
 
+
+
 // HANDLEBARS - importación
 const handlebars = require("express-handlebars");
 
@@ -65,9 +67,11 @@ serverSocket.on("connection", (socket) => {
     serverSocket.emit("productoAgregado", data);
   });
 
+  //const productosFS = require("../src/archivos/productos.json");
+
   function getProducts() {
     const ruta = path.join(__dirname, "archivos", "productos.json");
-    if (fs.existsSync(ruta)) {
+       if (fs.existsSync(ruta)) {
       return JSON.parse(fs.readFileSync(ruta, "utf-8"));
     } else {
       return [];
@@ -79,7 +83,6 @@ serverSocket.on("connection", (socket) => {
 
     function saveProducts(products) {
       const ruta = path.join(__dirname, "archivos", "productos.json");
-
       try {
         fs.writeFileSync(ruta, JSON.stringify(products, null, 2), "utf8");
       } catch (error) {
@@ -155,3 +158,5 @@ serverSocketChat.on("connection", (socket) => {
     usuarios.splice(indice, 1);
   });
 });
+
+
