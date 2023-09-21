@@ -62,44 +62,7 @@ const serverExpress = app.listen(PORT, () => {
 const serverSocket = socketIO(serverExpress);
 
 serverSocket.on("connection", (socket) => {
-  socket.on("productoAgregado", (data) => {
-    console.log(`Se ha agregado ${data.title}`);
-    serverSocket.emit("productoAgregado", data);
-  });
-
-  //const productosFS = require("../src/archivos/productos.json");
-
-  function getProducts() {
-    const ruta = path.join(__dirname, "archivos", "productos.json");
-       if (fs.existsSync(ruta)) {
-      return JSON.parse(fs.readFileSync(ruta, "utf-8"));
-    } else {
-      return [];
-    }
-  }
-
-  socket.on("eliminarProducto", (productId) => {
-    const productos = getProducts();
-
-    function saveProducts(products) {
-      const ruta = path.join(__dirname, "archivos", "productos.json");
-      try {
-        fs.writeFileSync(ruta, JSON.stringify(products, null, 2), "utf8");
-      } catch (error) {
-        console.error("Error al guardar productos:", error);
-      }
-    }
-    const productoIndex = productos.findIndex(
-      (producto) => producto.id === productId
-    );
-    if (productoIndex !== -1) {
-      productos.splice(productoIndex, 1);
-      saveProducts(productos);
-      serverSocket.emit("productosActualizados", productos);
-    }
-  });
-
-  socket.emit("productosActualizados", getProducts());
+  
 });
 
 moongose
@@ -157,6 +120,45 @@ serverSocketChat.on("connection", (socket) => {
     console.log(usuario);
     usuarios.splice(indice, 1);
   });
+
+  socket.on("productoAgregado", (data) => {
+    console.log(`Se ha agregado ${data.title}`);
+    serverSocket.emit("productoAgregado", data);
+  });
+
+  //const productosFS = require("../src/archivos/productos.json");
+
+  function getProducts() {
+    const ruta = path.join(__dirname, "archivos", "productos.json");
+    if (fs.existsSync(ruta)) {
+      return JSON.parse(fs.readFileSync(ruta, "utf-8"));
+    } else {
+      return [];
+    }
+  }
+
+  socket.on("eliminarProducto", (productId) => {
+    const productos = getProducts();
+
+    function saveProducts(products) {
+     const ruta = path.join(__dirname,  "archivos", "productos.json");
+      try {
+        fs.writeFileSync(ruta, JSON.stringify(products, null, 2), "utf8");
+      } catch (error) {
+        console.error("Error al guardar productos:", error);
+      }
+    }
+    const productoIndex = productos.findIndex(
+      (producto) => producto.id === productId
+    );
+    if (productoIndex !== -1) {
+      productos.splice(productoIndex, 1);
+      saveProducts(productos);
+      serverSocket.emit("productosActualizados", productos);
+    }
+  });
+
+  socket.emit("productosActualizados", getProducts());
 });
 
 

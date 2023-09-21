@@ -59,6 +59,8 @@ router.get("/:id", (req, res) => {
 router.post("/", async (req, res) => {
   const productos = getProducts();
 
+  let ruta2 = path(__dirname,"../../archivos/products.json");
+
   const { title, description, price, thumbnail, code, stock } = req.body;
 
   if (productos.some((producto) => producto.code === code)) {
@@ -83,7 +85,7 @@ router.post("/", async (req, res) => {
 
     try {
       await fs.promises.writeFile(
-        ruta,
+        ruta2,
         JSON.stringify(productos, null, 5),
         "utf8"
       );
