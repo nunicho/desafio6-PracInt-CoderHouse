@@ -4,7 +4,7 @@ const http = require("http");
 const socketIO = require("socket.io");
 const MessageModel = require("./dao/DB/models/messages.modelo.js");
 const moongose = require("mongoose");
-const path = require("path"); // Debes importar 'path'
+const path = require("path"); 
 
 
 
@@ -126,7 +126,7 @@ serverSocketChat.on("connection", (socket) => {
     serverSocket.emit("productoAgregado", data);
   });
 
-  //const productosFS = require("../src/archivos/productos.json");
+  
 
   function getProducts() {
     const ruta = path.join(__dirname, "archivos", "productos.json");
