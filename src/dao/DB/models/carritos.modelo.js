@@ -4,8 +4,7 @@ const mongoose = require("mongoose");
 const productoCarritoSchema = new mongoose.Schema({
   id: String,
   quantity: Number,
-},
-{ _id: false });
+});
 
 // Define el esquema para el carrito que contiene productos
 const carritoSchema = new mongoose.Schema({

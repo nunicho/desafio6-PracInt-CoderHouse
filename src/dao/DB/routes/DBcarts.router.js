@@ -22,16 +22,16 @@ router.get("/", async (req, res) => {
 
 router.get("/:cid", async (req, res) => {
   try {
-    const cid = parseInt(req.params.cid);
-
-    if (isNaN(cid)) {
+    const cid = req.params.cid;
+ 
+    if (!mongoose.Types.ObjectId.isValid(cid)) {
       return res.status(400).json({
         status: "error",
         mensaje: 'Requiere un argumento "cid" de tipo numérico',
       });
     }
 
-    const carrito = await carritosModelo.findOne({ id: cid });
+    const carrito = await carritosModelo.findOne({ _id: cid });
 
     if (!carrito) {
       return res.status(404).json({

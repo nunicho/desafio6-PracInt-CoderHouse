@@ -36,7 +36,7 @@ function saveProducts(carts) {
 router.get("/:cid", (req, res) => {
   let carritos = getCarts();
 
-  let cid = req.params.cid; 
+  let cid = req.params.cid;
   cid = parseInt(cid);
 
   if (isNaN(cid)) {
@@ -54,10 +54,9 @@ router.get("/:cid", (req, res) => {
   } else {
     res
       .status(404)
-      .json({ status: "error", mensaje: `El id ${cid} no existe` }); 
+      .json({ status: "error", mensaje: `El id ${cid} no existe` });
   }
 });
-
 
 //------------------------------------------------------------------------ PETICION POST
 
